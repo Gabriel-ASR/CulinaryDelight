@@ -2,115 +2,130 @@
 import { Text, View, Pressable, ImageBackground } from "react-native";
 import style from "../styles/styles";
 import { useEffect, useState } from "react";
-import queryDB, {
-  allRecipes,
-  downloadLinkList,
+import getRecipesList, {
   getImages,
+  getProfileImages,
 } from "../services/dbRead";
 
 function RecipeCard() {
-  const [count, setCount] = useState(0);
-  const [info, setInfo] = useState();
-  const [images, setImages] = useState([]);
+  const [recipeList, setRecipeList] = useState();
 
-  let filteredRecipeData = [];
+  async function fetchRecipesList() {
+    const recipesList = await getRecipesList();
+    const profilePictures = await fetchProfileImages();
 
-  async function fetchData() {
-    if (info) {
-      return null;
-    } else {
-      await queryDB();
+    const images = await fetchImages();
+    const data = recipesList.map((filteredData, index) => {
+      const result = filteredData.data();
 
-      allRecipes.map((filteredData) => {
-        filteredRecipeData.push(filteredData.data());
-      });
+      return {
+        ...result,
+        image: images[index],
+        profile: profilePictures,
+      };
+    });
 
-      setInfo(filteredRecipeData);
-    }
+    setRecipeList(data);
   }
 
   async function fetchImages() {
-    if (images) {
-      return null;
-    } else {
-      const imagesList = await getImages();
+    const imagesList = await getImages();
 
-      console.log("imagesList", imagesList);
-    }
+    return imagesList;
+  }
 
-    useEffect(() => {
-      fetchData();
-      fetchImages();
-    });
+  async function fetchProfileImages() {
+    const profileImagesList = await getProfileImages();
 
-    if (info && images) {
-      return info.map((recipe, index) => {
-        console.log(images[index]);
+    return profileImagesList;
+  }
 
-        return (
-          <View key={index} style={style.recipeCard}>
-            <View style={style.recipeAuthor}>
-              <View style={style.recipeProfilePhoto}></View>
-              <Text
-                style={[
-                  style.commonTextColor,
-                  { fontFamily: "MontserratExtraBold" },
-                ]}
-              >
-                {recipe.Autor}
-              </Text>
-            </View>
-            <Text
-              style={[
-                style.commonTextColor,
-                { fontFamily: "MontserratBlack", fontSize: 35 },
-              ]}
-            >
-              {recipe.Titulo}
-            </Text>
-            <Text
-              style={[
-                style.commonTextColor,
-                { fontFamily: "MontserratMedium", fontSize: 12 },
-              ]}
-            >
-              {recipe.data}
-            </Text>
-            <View style={style.recipeInformationContainer}>
-              <View style={style.recipeImage}>
-                <ImageBackground resizeMode="cover"></ImageBackground>
-              </View>
-              <Text></Text>
-              <View style={style.infoContainer}>
-                <View>
-                  <Text style={style.cardInfoTitle}>Descrição</Text>
-                  <Text style={style.info}>{recipe.Descricao}</Text>
-                </View>
-                <View>
-                  <Text style={style.cardInfoTitle}>
-                    Lista de Ingredientes:
-                  </Text>
-                  <Text style={style.info}>
-                    {recipe.Ingredientes.map((ingrediente) => {
-                      return `${ingrediente}; `;
-                    })}
-                  </Text>
-                  <Pressable>
-                    <Text style={style.hiperlink}>ver receita...</Text>
-                  </Pressable>
-                </View>
-              </View>
+  useEffect(() => {
+    fetchRecipesList();
+  }, []);
+
+  return recipeList?.map((recipe, index) => {
+    const imageToRender = recipe.profile
+      .map((url, index) => {
+        let profileImage;
+
+        if (url.includes(recipe.IdAutor)) {
+          profileImage = url;
+          return profileImage;
+        }
+      })
+      .filter((url) => url != null);
+
+    console.log(imageToRender);
+
+    return (
+      <View key={index} style={style.recipeCard}>
+        <View style={style.recipeAuthor}>
+          <View style={style.recipeProfilePhoto}>
+            <ImageBackground
+              style={{ width: "100%", height: "100%" }}
+              source={{ uri: imageToRender[0] }}
+            ></ImageBackground>
+          </View>
+          <Text
+            style={[
+              style.commonTextColor,
+              { fontFamily: "MontserratExtraBold" },
+            ]}
+          >
+            {recipe.Autor}
+          </Text>
+        </View>
+        <Text
+          style={[
+            style.commonTextColor,
+            { fontFamily: "MontserratBlack", fontSize: 35 },
+          ]}
+        >
+          {recipe.Titulo}
+        </Text>
+        <Text
+          style={[
+            style.commonTextColor,
+            { fontFamily: "MontserratMedium", fontSize: 12 },
+          ]}
+        >
+          {recipe.data}
+        </Text>
+        <View style={style.recipeInformationContainer}>
+          <View style={style.recipeImage}>
+            <ImageBackground
+              style={{ width: "100%", height: "100%" }}
+              source={{
+                uri: recipe.image,
+              }}
+            />
+          </View>
+          <Text></Text>
+          <View style={style.infoContainer}>
+            <View>
+              <Text style={style.cardInfoTitle}>Descrição</Text>
+              <Text style={style.info}>{recipe.Descricao}</Text>
             </View>
             <View>
-              <Text></Text>
+              <Text style={style.cardInfoTitle}>Lista de Ingredientes:</Text>
+              <Text style={style.info}>
+                {recipe.Ingredientes.map((ingrediente) => {
+                  return `${ingrediente}; `;
+                })}
+              </Text>
+              <Pressable>
+                <Text style={style.hiperlink}>ver receita...</Text>
+              </Pressable>
             </View>
           </View>
-        );
-      });
-    } else {
-      return <Text>Deu Ruim</Text>;
-    }
-  }
+        </View>
+        <View>
+          <Text></Text>
+        </View>
+      </View>
+    );
+  });
 }
 
 export default RecipeCard;

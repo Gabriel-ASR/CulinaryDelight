@@ -1,71 +1,70 @@
-import {collection, getDocs, query } from "firebase/firestore"
-import { db } from "./firebaseConfig";
-import { storage } from "./firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
+import { db, storage, auth } from "./firebaseConfig";
 import { getDownloadURL, listAll, ref } from "@firebase/storage";
 
-export let allRecipes = [];
-let recipeFolderPath = [];
-let recipeImagePath = [];
-let tempPath = []
-export let downloadLinkList = []
-let i = 1
+export async function getRecipesList() {
+  const recipesList = [];
+  const receitas = await getDocs(collection(db, "receitas"));
 
-async function queryDB() {
+  receitas.forEach((doc) => {
+    recipesList.push(doc);
+  });
 
-    const receitas = await getDocs(collection(db, "receitas"))
-    
-      receitas.forEach((doc) => {
-          allRecipes.push(doc)
-      })
-
+  return recipesList;
 }
-
 
 export async function getImages() {
+  const recipeRef = ref(storage, "recipe-images");
 
-  const recipeRef = ref(storage, 'recipe-images')
+  const folderList = await listAll(recipeRef);
 
-  await listAll(recipeRef).then((res) => {
+  const folderPathList = folderList.prefixes.map((i) => i.fullPath);
 
-    res.prefixes.map((folderRef) => {
+  const imageLinks = await Promise.all(
+    folderPathList.map(async (folderPath) => {
+      const folderRefPath = ref(storage, folderPath);
 
-      tempPath.push(folderRef.fullPath)
+      const imageRefPathList = await listAll(folderRefPath);
 
-      recipeFolderPath = tempPath
+      const urlList = await Promise.all(
+        imageRefPathList.items.map(
+          async (item) => await getDownloadURL(ref(storage, item.fullPath))
+        )
+      );
 
+      return urlList;
     })
+  );
 
-  }).catch((e) => {
-
-    console.log(`log de erros ${e}`)
-
-  })
-
-
-  for (i in recipeFolderPath) {
-
-    const imageRef = ref(storage, recipeFolderPath[i])
-
-    await listAll(imageRef).then((imagePathRef) => {
-
-      imagePathRef.items.map((item) => {
-
-        recipeImagePath.push(item.fullPath)
-
-      });
-
-    })
-
-    getDownloadURL(ref(storage, recipeImagePath[i])).then((url) => {
-    
-      downloadLinkList.push(url)
-
-    })
-
-  }
-
-  return downloadLinkList
-
+  return imageLinks.map((i) => i[0]);
 }
 
-export default queryDB
+export async function getProfileImages() {
+  const profileRef = ref(storage, "profile-pictures");
+
+  const profileFolderList = await listAll(profileRef);
+
+  const profileFolderPathList = profileFolderList.prefixes.map(
+    (i) => i.fullPath
+  );
+
+  const profileImageLinks = await Promise.all(
+    profileFolderPathList.map(async (folderPath) => {
+      const folderRefPath = ref(storage, folderPath);
+
+      const profileImageRefPathList = await listAll(folderRefPath);
+
+      const urlList = await Promise.all(
+        profileImageRefPathList.items.map(
+          async (item) => await getDownloadURL(ref(storage, item.fullPath))
+        )
+      );
+
+      return urlList;
+    })
+  );
+
+  return profileImageLinks.map((i) => i[0]);
+}
+
+export default getRecipesList;
