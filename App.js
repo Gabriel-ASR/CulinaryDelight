@@ -8,8 +8,14 @@ import "./assets/menu-aberto.png";
 import LoginPage from "./CulinaryDelightApp/pages/Login";
 import RegisterPage from "./CulinaryDelightApp/pages/Registro";
 import NewRecipe from "./CulinaryDelightApp/pages/NewRecipe";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Home from "./CulinaryDelightApp/routes/Home";
+import CurrentRecipe from "./CulinaryDelightApp/pages/CurrentRecipe";
+import AddInformation from "./CulinaryDelightApp/pages/AddInformation";
 
-const tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [loaded] = useFonts({
@@ -37,14 +43,29 @@ export default function App() {
     return null;
   }
 
-  return (
-    <NavigationContainer>
-      <tab.Navigator>
-        <tab.Screen name="Página Inicial" component={LandingPage} />
-        <tab.Screen name="Login" component={LoginPage} />
-        <tab.Screen name="Registro" component={RegisterPage} />
-        <tab.Screen name="Nova Receita" component={NewRecipe} />
-      </tab.Navigator>
-    </NavigationContainer>
-  );
+  if (AsyncStorage.getItem("Logged") == "true") {
+    return (
+      <NavigationContainer>
+        <Tab.Navigator initialRouteName="Página Inicial">
+          <Tab.Screen name="Página Inicial" component={LandingPage} />
+          <Tab.Screen name="Nova Receita" componet={NewRecipe} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    );
+  } else {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Receita Atual" component={CurrentRecipe} />
+          <Stack.Screen name="Página Inicial" component={Home} />
+          <Stack.Screen name="Login" component={LoginPage} />
+          <Stack.Screen name="Registro" component={RegisterPage} />
+          <Stack.Screen name="Adicionar Info" component={AddInformation} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
 }

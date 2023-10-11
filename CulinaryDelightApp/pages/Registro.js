@@ -11,10 +11,12 @@ import { ImageBackground } from "react-native";
 import authBackground from "../../assets/authBackground.jpg";
 import backgroundColor from "../../assets/backgroundcolor.png";
 import style from "../styles/styles";
+import addUserToFirebase from "../services/dbManipulation";
+import { error } from "../services/dbManipulation";
 
 export let RegData = [];
 
-export default function RegisterPage() {
+export default function RegisterPage({ navigation }) {
   const {
     control,
     handleSubmit,
@@ -27,7 +29,8 @@ export default function RegisterPage() {
   });
 
   const onSubmit = (data) => {
-    RegData = data;
+    addUserToFirebase(data);
+    navigation.navigate("Login");
   };
 
   return (
@@ -38,6 +41,7 @@ export default function RegisterPage() {
       >
         <View style={style.authDrawer}>
           <Text style={style.authAction}>Registrar</Text>
+          {error && <Text>Já há um usuário cadastrado com este e-mail!</Text>}
           <View style={style.textInputContainer}>
             <View>
               <Text

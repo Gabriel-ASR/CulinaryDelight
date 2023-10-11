@@ -11,9 +11,13 @@ import {
 import { useForm, Controller, set } from "react-hook-form";
 import { BsPlus } from "react-icons/bs";
 import style from "../styles/styles";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { ScrollView } from "react-native";
+import { ScrollView, ImageBackground } from "react-native";
+import { getProfileImages, userId } from "../services/dbRead";
+import { username } from "../services/dbRead";
+import { addRecipeToFirebase } from "../services/dbManipulation";
+import TopMenu from "../components/TopMenu";
 
 let ingAdded = null;
 let qtdAdded = null;
@@ -25,6 +29,42 @@ export let quantity;
 export let recipeImage;
 
 export default function NewRecipe() {
+  let profileImageToRender;
+
+  const [profilePicture, setProfilePicture] = useState();
+
+  async function filterUserImage() {
+    const imageList = await getProfileImages();
+
+    profileImageToRender = imageList
+      .map((item, index) => {
+        if (item.includes(userId)) {
+          imageList.splice(index, 1);
+          return item;
+        } else {
+          return null;
+        }
+      })
+      .filter((item) => {
+        if (!item) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+
+    return profileImageToRender[0];
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      const profileImage = await filterUserImage();
+      setProfilePicture(profileImage);
+    }
+
+    fetchData();
+  }, []);
+
   const {
     control,
     handleSubmit,
@@ -44,28 +84,26 @@ export default function NewRecipe() {
   const [ingredientError, setIngredientError] = useState(false);
   const [quantityError, setQuantityError] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [image, setImage] = useState(null);
 
   const onSubmit = (data) => {
-    if (ingredients.length == 0 || quantities.length == 0) {
+    if (ingredients.length < 1 || quantities.length < 1) {
       setAddIngredientError(true);
     }
-    if (!image) {
+    if (!blob) {
       setImageError(true);
     } else {
       recipeData = data;
       ingredient = ingredients;
       quantity = quantities;
-      recipeImage = image;
+      recipeImage = blob;
+
+      addRecipeToFirebase(recipeData, ingredient, quantity, recipeImage);
     }
   };
 
   const removeItem = (toRemoveIndex) => {
-    console.log("ingredientes antes", ingredients);
-    console.log("quantidades antes", quantities);
     ingredients.splice(toRemoveIndex, 1);
     quantities.splice(toRemoveIndex, 1);
-    console.log("after splice", ingredients);
     setIngredients(ingredients.slice());
     setQuantities(quantities.slice());
   };
@@ -79,8 +117,9 @@ export default function NewRecipe() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      setImageError(false);
+      const { uri } = result;
+
+      blob = await fetch(uri).then((response) => response.blob());
     }
   };
 
@@ -88,24 +127,7 @@ export default function NewRecipe() {
 
   return (
     <ScrollView>
-      <View style={style.topMenu}>
-        <Image
-          style={style.logo}
-          source={require("../../assets/logo-culinary-delight.png")}
-        />
-        <View style={style.authentication}>
-          <TouchableHighlight style={style.loginButton}>
-            <Text style={style.loginText}>Login</Text>
-          </TouchableHighlight>
-          <Pressable>
-            <Text style={style.registerText}>Registre-se</Text>
-          </Pressable>
-        </View>
-        <Image
-          style={style.menu}
-          source={require("../../assets/menu-aberto.png")}
-        />
-      </View>
+      <TopMenu />
       <View style={style.newRecipeContentContainer}>
         <View style={style.titleContainer}>
           <Text style={[style.darkTextColor, style.title]}>Nova Receita</Text>
@@ -224,7 +246,6 @@ export default function NewRecipe() {
                     ...quantitiesList,
                     qtdAdded,
                   ]);
-                  console.log("ing e qtd", ingredients, quantities);
                   setIngredientError(false);
                   setQuantityError(false);
                   setAddIngredientError(false);
@@ -232,20 +253,15 @@ export default function NewRecipe() {
                   setIsVisible(true);
                   ingAdded = null;
                   qtdAdded = null;
-                  console.log("ing e qtd", ingAdded, qtdAdded);
                 } else if (isVisible && ingAdded && !qtdAdded) {
                   setQuantityError(true);
-                  console.log("ing e qtd", ingAdded, qtdAdded);
                 } else if (isVisible && qtdAdded && !ingAdded) {
                   setIngredientError(true);
-                  console.log("ing e qtd", ingAdded, qtdAdded);
                 } else if (isVisible && !qtdAdded && !ingAdded) {
                   setIngredientError(true);
                   setQuantityError(true);
-                  console.log("ing e qtd", ingAdded, qtdAdded);
                 } else if (!isVisible) {
                   setIsVisible(true);
-                  console.log("ing e qtd", ingAdded, qtdAdded);
                 }
               }}
             >

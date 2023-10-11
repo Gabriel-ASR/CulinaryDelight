@@ -16,6 +16,7 @@ const style = StyleSheet.create({
     paddingTop: "8%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
 
   logo: {
@@ -89,16 +90,6 @@ const style = StyleSheet.create({
     fontFamily: "MontserratBlack",
   },
 
-  authentication: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-    gap: 20,
-  },
-
   recipeCard: {
     backgroundColor: "#F4F4F4",
     width: "100%",
@@ -129,8 +120,8 @@ const style = StyleSheet.create({
   recipeAuthor: {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 8,
   },
 
   recipeImage: {
@@ -178,6 +169,7 @@ const style = StyleSheet.create({
   titleContainer: {
     marginTop: 9,
     display: "flex",
+    paddingLeft: 20,
   },
 
   title: {
@@ -329,6 +321,7 @@ const style = StyleSheet.create({
     height: 45,
     borderRadius: 14,
     paddingLeft: 15,
+    paddingRight: 15,
     fontFamily: "MontserratMedium",
   },
 
@@ -345,6 +338,80 @@ const style = StyleSheet.create({
     fontFamily: "MontserratBlack",
     color: "white",
     fontSize: 18,
+  },
+
+  profilePicture: {
+    borderWidth: 2,
+    aspectRatio: 1 / 1,
+    height: 50,
+    borderRadius: 50,
+    borderColor: "#3E5C76",
+    overflow: "hidden",
+  },
+
+  profileInfo: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 20,
+  },
+
+  profileContentContainer: {
+    display: "flex",
+    alignItems: "center",
+    marginTop: 50,
+    gap: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+
+  profileName: {
+    fontFamily: "MontserratBlack",
+    color: "#1D2D44",
+    fontSize: 30,
+  },
+
+  profileSubText: {
+    fontFamily: "MontserratBold",
+    color: "#354E72",
+    fontSize: 20,
+  },
+
+  profileBio: {
+    fontFamily: "MontserratRegular",
+    textAlign: "center",
+  },
+
+  profilePressable: {
+    backgroundColor: "#1D2D44",
+    padding: 15,
+    paddingLeft: 30,
+    paddingRight: 30,
+    borderRadius: 50,
+  },
+
+  imageEditButton: {
+    width: 150,
+    display: "flex",
+    alignItems: "center",
+  },
+
+  currentRecipeContainer: {
+    padding: 15,
+    display: "flex",
+    gap: 20,
+  },
+
+  ingredientList: {
+    display: "flex",
+    gap: 10,
+  },
+
+  ingredientItem: {
+    fontFamily: "MontserratMedium",
+    color: "#1D2D44",
+    display: "flex",
+    justifyContent: "center",
   },
 });
 

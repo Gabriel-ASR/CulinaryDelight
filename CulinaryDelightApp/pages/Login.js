@@ -11,11 +11,17 @@ import { ImageBackground } from "react-native";
 import authBackground from "../../assets/authBackground.jpg";
 import backgroundColor from "../../assets/backgroundcolor.png";
 import style from "../styles/styles";
-import { Link } from "@react-navigation/native";
-
-export let loginData = [];
+import { Link, useNavigation } from "@react-navigation/native";
+import { dbUserQuery } from "../services/dbRead";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+export let loginData;
 
 export default function LoginPage() {
+  const navigation = useNavigation();
+
+  const [isNewUser, setIsNewUser] = useState();
+
   const {
     control,
     handleSubmit,
@@ -27,8 +33,16 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (data) => {
-    loginData = data;
+  const onSubmit = async (data) => {
+    const newUser = await dbUserQuery(data);
+
+    if ((await AsyncStorage.getItem("Logged")) == "true") {
+      if (newUser) {
+        navigation.navigate("Adicionar Info");
+      } else {
+        navigation.navigate("Página Inicial");
+      }
+    }
   };
 
   return (
@@ -120,6 +134,12 @@ export default function LoginPage() {
           <Link to={{ screen: "Registro" }} style={{ color: "#3E5C76" }}>
             Não é cadastrado ainda?
           </Link>
+          <Button
+            title="entrar fácil"
+            onPress={() => {
+              AsyncStorage.setItem("Logged", "true");
+            }}
+          ></Button>
           <TouchableHighlight
             onPress={handleSubmit(onSubmit)}
             style={style.authSubmit}

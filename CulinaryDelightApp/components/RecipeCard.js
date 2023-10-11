@@ -5,9 +5,15 @@ import { useEffect, useState } from "react";
 import getRecipesList, {
   getImages,
   getProfileImages,
+  recipeIdList,
+  userId,
 } from "../services/dbRead";
+import { Link, useNavigation } from "@react-navigation/native";
+import { deleteRecipeFromDatabase } from "../services/dbManipulation";
 
-function RecipeCard() {
+function RecipeCard({ filter }) {
+  const navigation = useNavigation();
+
   const [recipeList, setRecipeList] = useState();
 
   async function fetchRecipesList() {
@@ -20,8 +26,9 @@ function RecipeCard() {
 
       return {
         ...result,
-        image: images[index],
+        image: images,
         profile: profilePictures,
+        id: recipeIdList[index],
       };
     });
 
@@ -44,9 +51,138 @@ function RecipeCard() {
     fetchRecipesList();
   }, []);
 
+  if (filter) {
+    return recipeList?.map((recipe, index) => {
+      if (recipe.IdAutor == userId) {
+        const profileImageToRender = recipe.profile
+          .map((url) => {
+            let profileImage;
+
+            if (url.includes(recipe.IdAutor)) {
+              profileImage = url;
+              return profileImage;
+            }
+          })
+          .filter((url) => url != null);
+
+        const imageToRender = recipe.image
+          .map((url) => {
+            let Image;
+
+            if (url.includes(recipe.id)) {
+              Image = url;
+              return Image;
+            }
+          })
+          .filter((url) => url != null);
+
+        console.log(imageToRender);
+
+        return (
+          <View key={index} style={style.recipeCard}>
+            <View style={style.recipeAuthor}>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <View style={style.recipeProfilePhoto}>
+                  <ImageBackground
+                    style={{ width: "100%", height: "100%" }}
+                    source={{ uri: profileImageToRender[0] }}
+                  ></ImageBackground>
+                </View>
+                <Text
+                  style={[
+                    style.commonTextColor,
+                    { fontFamily: "MontserratExtraBold" },
+                  ]}
+                >
+                  {recipe.Autor}
+                </Text>
+              </View>
+              <View>
+                <Pressable
+                  style={{ justifySelf: "flex-end" }}
+                  onPress={() => {
+                    deleteRecipeFromDatabase(recipe.id);
+                  }}
+                >
+                  <Text>Excluir Receita</Text>
+                </Pressable>
+              </View>
+            </View>
+            <Text
+              style={[
+                style.commonTextColor,
+                { fontFamily: "MontserratBlack", fontSize: 35 },
+              ]}
+            >
+              {recipe.Titulo}
+            </Text>
+            <Text
+              style={[
+                style.commonTextColor,
+                { fontFamily: "MontserratMedium", fontSize: 12 },
+              ]}
+            >
+              {recipe.data}
+            </Text>
+            <View style={style.recipeInformationContainer}>
+              <View style={style.recipeImage}>
+                <ImageBackground
+                  style={{ width: "100%", height: "100%" }}
+                  source={{
+                    uri: imageToRender[0],
+                  }}
+                />
+              </View>
+              <Text></Text>
+              <View style={style.infoContainer}>
+                <View>
+                  <Text style={style.cardInfoTitle}>Descrição</Text>
+                  <Text style={style.info}>{recipe.Descricao}</Text>
+                </View>
+                <View>
+                  <Text style={style.cardInfoTitle}>
+                    Lista de Ingredientes:
+                  </Text>
+                  <Text style={style.info}>
+                    {recipe.Ingredientes.map((ingrediente) => {
+                      return `${ingrediente}; `;
+                    })}
+                  </Text>
+                  <Pressable
+                    onPress={() => {
+                      navigation.navigate("Receita Atual", {
+                        Autor: recipe.Autor,
+                        Descricao: recipe.Descricao,
+                        Ingredientes: recipe.Ingredientes,
+                        Preparo: recipe.Preparo,
+                        Quantidades: recipe.Quantidades,
+                        Titulo: recipe.Titulo,
+                        data: recipe.data,
+                        image: imageToRender[0],
+                      });
+                    }}
+                  >
+                    <Text style={style.hiperlink}>ver receita...</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </View>
+        );
+      }
+    });
+  }
+
   return recipeList?.map((recipe, index) => {
-    const imageToRender = recipe.profile
-      .map((url, index) => {
+    const profileImageToRender = recipe.profile
+      .map((url) => {
         let profileImage;
 
         if (url.includes(recipe.IdAutor)) {
@@ -56,25 +192,45 @@ function RecipeCard() {
       })
       .filter((url) => url != null);
 
+    const imageToRender = recipe.image
+      .map((url) => {
+        let Image;
+
+        if (url.includes(recipe.id)) {
+          Image = url;
+          return Image;
+        }
+      })
+      .filter((url) => url != null);
+
     console.log(imageToRender);
 
     return (
       <View key={index} style={style.recipeCard}>
         <View style={style.recipeAuthor}>
-          <View style={style.recipeProfilePhoto}>
-            <ImageBackground
-              style={{ width: "100%", height: "100%" }}
-              source={{ uri: imageToRender[0] }}
-            ></ImageBackground>
-          </View>
-          <Text
-            style={[
-              style.commonTextColor,
-              { fontFamily: "MontserratExtraBold" },
-            ]}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+            }}
           >
-            {recipe.Autor}
-          </Text>
+            <View style={style.recipeProfilePhoto}>
+              <ImageBackground
+                style={{ width: "100%", height: "100%" }}
+                source={{ uri: profileImageToRender[0] }}
+              ></ImageBackground>
+            </View>
+            <Text
+              style={[
+                style.commonTextColor,
+                { fontFamily: "MontserratExtraBold" },
+              ]}
+            >
+              {recipe.Autor}
+            </Text>
+          </View>
         </View>
         <Text
           style={[
@@ -97,7 +253,7 @@ function RecipeCard() {
             <ImageBackground
               style={{ width: "100%", height: "100%" }}
               source={{
-                uri: recipe.image,
+                uri: imageToRender[0],
               }}
             />
           </View>
@@ -114,7 +270,20 @@ function RecipeCard() {
                   return `${ingrediente}; `;
                 })}
               </Text>
-              <Pressable>
+              <Pressable
+                onPress={() => {
+                  navigation.navigate("Receita Atual", {
+                    Autor: recipe.Autor,
+                    Descricao: recipe.Descricao,
+                    Ingredientes: recipe.Ingredientes,
+                    Preparo: recipe.Preparo,
+                    Quantidades: recipe.Quantidades,
+                    Titulo: recipe.Titulo,
+                    data: recipe.data,
+                    image: imageToRender[0],
+                  });
+                }}
+              >
                 <Text style={style.hiperlink}>ver receita...</Text>
               </Pressable>
             </View>
