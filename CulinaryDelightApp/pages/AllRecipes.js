@@ -22,9 +22,12 @@ function AllRecipes() {
     >
       <TopMenu />
       <View style={style.titleContainer}>
-        <Text style={[style.darkTextColor, style.title]}>Suas Receitas</Text>
+        <Text style={[style.darkTextColor, style.title]}>
+          Todas as receitas
+        </Text>
         <Text style={[style.darkTextColor, style.subTitle]}>
-          reveja suas receitas ou adicione {"\n"} novas.
+          Mavegue por todas as receitas{"\n"}e descubra qual delícia você vai
+          fazer hoje!
         </Text>
       </View>
       {!refreshing && <RecipeCard />}

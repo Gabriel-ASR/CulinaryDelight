@@ -28,7 +28,7 @@ export let ingredient;
 export let quantity;
 export let recipeImage;
 
-export default function NewRecipe() {
+export default function NewRecipe({ navigation }) {
   let profileImageToRender;
 
   const [profilePicture, setProfilePicture] = useState();
@@ -98,6 +98,8 @@ export default function NewRecipe() {
       recipeImage = blob;
 
       addRecipeToFirebase(recipeData, ingredient, quantity, recipeImage);
+
+      navigation.navigate("Página Inicial");
     }
   };
 

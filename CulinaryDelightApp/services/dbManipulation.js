@@ -38,7 +38,6 @@ export async function addRecipeToFirebase(
 
   recipeResult.forEach((doc) => {
     recipeTitle = doc.data().Titulo;
-    console.log(recipeTitle);
   });
 
   if (recipeTitle == data.recipeName) {
@@ -73,7 +72,6 @@ async function uploadImageToStorage(name, blobImage) {
 
   recipeResult.forEach((doc) => {
     recipeId = doc.id;
-    console.log(recipeId);
   });
 
   imageToUploadRef = ref(storage, `recipe-images/${recipeId}/${recipeId}`);
@@ -105,8 +103,6 @@ export async function deleteRecipeFromDatabase(id) {
 }
 
 export default async function addUserToFirebase({ email, password }) {
-  console.log(email);
-
   let existingEmail;
 
   const userQuery = query(
@@ -121,7 +117,6 @@ export default async function addUserToFirebase({ email, password }) {
 
   if (email == existingEmail) {
     error = true;
-    console.log("deu erro");
   } else {
     const toAdd = await addDoc(collection(db, "usuários"), {
       email: email,
@@ -149,4 +144,17 @@ export default async function addUserToFirebase({ email, password }) {
       Id: id,
     });
   }
+}
+
+export async function addOtherInfo(data) {
+  const updatedUser = doc(db, "usuários", userId);
+
+  await updateDoc(updatedUser, {
+    status: "Ajudante",
+    username: data.Name,
+    Idade: data.Age,
+    Bio: data.Bio,
+  });
+
+  return data.Name;
 }

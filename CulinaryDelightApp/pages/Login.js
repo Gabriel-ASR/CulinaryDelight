@@ -15,12 +15,12 @@ import { Link, useNavigation } from "@react-navigation/native";
 import { dbUserQuery } from "../services/dbRead";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
+import { errorMessage } from "../services/dbRead";
+
 export let loginData;
 
 export default function LoginPage() {
   const navigation = useNavigation();
-
-  const [isNewUser, setIsNewUser] = useState();
 
   const {
     control,
@@ -34,12 +34,11 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data) => {
-    const newUser = await dbUserQuery(data);
-
-    if ((await AsyncStorage.getItem("Logged")) == "true") {
-      if (newUser) {
-        navigation.navigate("Adicionar Info");
-      } else {
+    const isNewUser = await dbUserQuery(data);
+    if (isNewUser.novo) {
+      navigation.navigate("Adicionar Info", { loginData: data });
+    } else {
+      if ((await AsyncStorage.getItem("Logged")) == "true") {
         navigation.navigate("Página Inicial");
       }
     }
@@ -53,6 +52,7 @@ export default function LoginPage() {
       >
         <View style={style.authDrawer}>
           <Text style={style.authAction}>Log-in</Text>
+          {errorMessage && <Text>{errorMessage}</Text>}
           <View style={style.textInputContainer}>
             <View>
               <Text
@@ -134,12 +134,6 @@ export default function LoginPage() {
           <Link to={{ screen: "Registro" }} style={{ color: "#3E5C76" }}>
             Não é cadastrado ainda?
           </Link>
-          <Button
-            title="entrar fácil"
-            onPress={() => {
-              AsyncStorage.setItem("Logged", "true");
-            }}
-          ></Button>
           <TouchableHighlight
             onPress={handleSubmit(onSubmit)}
             style={style.authSubmit}

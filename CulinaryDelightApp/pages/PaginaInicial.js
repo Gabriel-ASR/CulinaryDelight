@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableHighlight,
   StyleSheet,
+  RefreshControl,
 } from "react-native";
 import style from "../styles/styles";
 import "../../assets/logo-culinary-delight.png";
@@ -15,49 +16,26 @@ import { useEffect } from "react";
 import { getProfileImages } from "../services/dbRead";
 import { userId } from "../services/dbRead";
 import { ImageBackground } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { username } from "../services/dbRead";
 import TopMenu from "../components/TopMenu";
 
 function LandingPage({ navigation }) {
-  let profileImageToRender;
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [profilePicture, setProfilePicture] = useState();
-
-  async function filterUserImage() {
-    const imageList = await getProfileImages();
-
-    profileImageToRender = imageList
-      .map((item, index) => {
-        if (item.includes(userId)) {
-          imageList.splice(index, 1);
-          return item;
-        } else {
-          return null;
-        }
-      })
-      .filter((item) => {
-        if (!item) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-
-    return profileImageToRender[0];
-  }
-
-  useEffect(() => {
-    async function fetchData() {
-      const profileImage = await filterUserImage();
-      setProfilePicture(profileImage);
-    }
-
-    fetchData();
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
   }, []);
-
   return (
-    <ScrollView style={style.container}>
+    <ScrollView
+      style={style.container}
+      refreshControl={
+        <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
+      }
+    >
       <TopMenu />
       <View style={style.contentContainer}>
         <TouchableHighlight
@@ -84,7 +62,7 @@ function LandingPage({ navigation }) {
         <Text style={[style.commonText, style.commonTextColor]}>
           Receitas mais recentes:
         </Text>
-        <RecipeCard />
+        {!refreshing && <RecipeCard />}
       </View>
     </ScrollView>
   );

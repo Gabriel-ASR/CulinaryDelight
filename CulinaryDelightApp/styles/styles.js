@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import AddInformation from "../pages/AddInformation";
 
 const style = StyleSheet.create({
   container: {
@@ -235,6 +236,8 @@ const style = StyleSheet.create({
     height: 120,
     paddingLeft: 15,
     paddingTop: 15,
+    paddingRight: 15,
+    paddingBottom: 15,
     borderRadius: 15,
     textAlignVertical: "top",
   },
@@ -412,6 +415,29 @@ const style = StyleSheet.create({
     color: "#1D2D44",
     display: "flex",
     justifyContent: "center",
+  },
+
+  addInformationContainer: {
+    backgroundColor: "#1D2D44",
+    width: "100%",
+    padding: 20,
+    gap: 15,
+    borderRadius: 20,
+  },
+
+  addInfoInputGroup: {
+    display: "flex",
+    gap: 8,
+  },
+
+  addInfoTouchable: {
+    alignSelf: "center",
+    backgroundColor: "#3E5C76",
+    width: "50%",
+    display: "flex",
+    alignItems: "center",
+    padding: 10,
+    borderRadius: 10,
   },
 });
 

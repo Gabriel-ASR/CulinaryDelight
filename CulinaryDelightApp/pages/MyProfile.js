@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import TopMenu from "../components/TopMenu";
-import { fetchUserData } from "../services/dbRead";
+import getRecipesList, { fetchUserData } from "../services/dbRead";
 import { useEffect, useState, useCallback } from "react";
 import style from "../styles/styles";
 import { getProfileImages } from "../services/dbRead";
@@ -26,6 +26,7 @@ function MyProfile() {
   const [profilePicture, setProfilePicture] = useState();
   const [editMode, setEditMode] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [count, setCount] = useState();
 
   let blob;
 
@@ -113,6 +114,31 @@ function MyProfile() {
   }, []);
 
   if (infoDisplay) {
+    async function recipeCount() {
+      const recipes = await getRecipesList();
+
+      filteredRecipes = recipes.map((item) => {
+        return item.data();
+      });
+
+      const onlyCurrentUserRecipes = filteredRecipes.map((item) => {
+        if (item.Autor !== infoDisplay.username) {
+          return null;
+        }
+
+        return item;
+      });
+
+      const filteredCurrentUserRecipes = onlyCurrentUserRecipes.filter(
+        (item) => {
+          return item != null;
+        }
+      );
+
+      setCount(filteredCurrentUserRecipes.length);
+    }
+
+    recipeCount();
     return (
       <ScrollView
         refreshControl={
@@ -181,7 +207,8 @@ function MyProfile() {
               fontFamily: "MontserratBlack",
             }}
           >
-            <Text></Text>Receitas
+            <Text>{count} </Text>
+            {count > 1 ? "Receitas" : "Receita"}
           </Text>
           <View
             style={{

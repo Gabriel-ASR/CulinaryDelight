@@ -9,6 +9,7 @@ export let userId;
 export let username;
 export const recipeIdList = [];
 let passId;
+export let newUser;
 
 export async function getRecipesList() {
   const recipesList = [];
@@ -77,65 +78,67 @@ export async function getProfileImages() {
 }
 
 export async function dbUserQuery(data) {
-  let newUser;
   let passId;
   try {
-    const userQuery = query(
-      collection(db, "usuários"),
-      where("email", "==", data.email)
-    );
-    const passQuery = query(
-      collection(db, "usuários"),
-      where("senha", "==", data.password)
-    );
-
-    const userResult = await getDocs(userQuery);
-    const passResult = await getDocs(passQuery);
-
-    userResult.forEach((doc) => {
-      userId = doc.id;
-    });
-
-    passResult.forEach((doc) => {
-      passId = doc.id;
-      console.log(passId);
-    });
-
+    AsyncStorage.setItem("Logged", "false");
+    newUser = false;
     const usernameQuery = query(
       collection(db, "usuários"),
-      where("Id", "==", userId)
+      where("email", "==", data.email)
     );
 
     const usernameResult = await getDocs(usernameQuery);
 
     usernameResult.forEach((doc) => {
-      username = doc.data().username;
       bio = doc.data().Bio;
+      userId = doc.id;
     });
 
-    if (userId == passId && userId != null) {
-      if (!bio) {
-        newUser = true;
-      }
-      AsyncStorage.setItem("Logged", "true");
-      AsyncStorage.setItem("UserId", userId);
-      errorMessage = null;
-    } else if (userId == null) {
-      errorMessage = "Usuário não cadastrado.";
-      setTimeout(() => {
-        errorMessage = "";
-      }, 2500);
+    if (!bio) {
+      newUser = true;
     } else {
-      errorMessage = "Usuário ou senha incorretos.";
-      setTimeout(() => {
-        errorMessage = "";
-      }, 2500);
+      const userQuery = query(
+        collection(db, "usuários"),
+        where("email", "==", data.email)
+      );
+      const passQuery = query(
+        collection(db, "usuários"),
+        where("senha", "==", data.password)
+      );
+
+      const userResult = await getDocs(userQuery);
+      const passResult = await getDocs(passQuery);
+
+      passResult.forEach((doc) => {
+        passId = doc.id;
+        username = doc.data().username;
+      });
+
+      userResult.forEach((doc) => {
+        userId = doc.id;
+      });
+
+      if (userId == passId && userId != null) {
+        AsyncStorage.setItem("Logged", "true");
+        AsyncStorage.setItem("UserId", userId);
+        errorMessage = null;
+      } else if (userId == null) {
+        errorMessage = "Usuário não cadastrado.";
+        setTimeout(() => {
+          errorMessage = "";
+        }, 2500);
+      } else {
+        errorMessage = "Usuário ou senha incorretos.";
+        setTimeout(() => {
+          errorMessage = "";
+        }, 2500);
+      }
     }
   } catch (e) {
     console.log("Log de erros: ", e);
   }
 
-  return newUser;
+  return { novo: newUser, nome: username };
 }
 
 export async function fetchUserData() {
@@ -151,6 +154,28 @@ export async function fetchUserData() {
   });
 
   return userData;
+}
+
+export async function fetchProfileData(name) {
+  const userQuery = query(
+    collection(db, "usuários"),
+    where("username", "==", name)
+  );
+
+  const userResult = await getDocs(userQuery);
+
+  userResult.forEach((doc) => {
+    userData = doc.data();
+    console.log(userData);
+  });
+
+  return userData;
+}
+
+export function logout() {
+  AsyncStorage.removeItem("Logged");
+  userId == null;
+  passId == null;
 }
 
 export default getRecipesList;

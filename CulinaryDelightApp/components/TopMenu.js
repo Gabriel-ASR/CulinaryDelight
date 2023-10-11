@@ -1,11 +1,15 @@
-import { View, Image, Text, ImageBackground } from "react-native";
+import { View, Image, Text, ImageBackground, Pressable } from "react-native";
 import style from "../styles/styles";
 import { username } from "../services/dbRead";
 import { useState, useEffect } from "react";
 import { getProfileImages } from "../services/dbRead";
 import { userId } from "../services/dbRead";
+import { logout } from "../services/dbRead";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 function TopMenu() {
+  const navigation = useNavigation();
   let profileImageToRender;
 
   const [profilePicture, setProfilePicture] = useState();
@@ -33,6 +37,10 @@ function TopMenu() {
     return profileImageToRender[0];
   }
 
+  function callLogout() {
+    logout();
+    navigation.navigate("Login");
+  }
   useEffect(() => {
     async function fetchData() {
       const profileImage = await filterUserImage();
@@ -47,6 +55,15 @@ function TopMenu() {
         style={style.logo}
         source={require("../../assets/logo-culinary-delight.png")}
       />
+      <Pressable
+        onPress={() => {
+          callLogout();
+        }}
+      >
+        <Text style={{ fontFamily: "MontserratBlack", color: "#ff3333" }}>
+          Sair
+        </Text>
+      </Pressable>
       <View style={style.profileInfo}>
         <Text style={{ fontFamily: "MontserratMedium", color: "white" }}>
           {username}

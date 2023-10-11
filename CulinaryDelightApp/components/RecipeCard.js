@@ -216,12 +216,17 @@ function RecipeCard({ filter }) {
               gap: 10,
             }}
           >
-            <View style={style.recipeProfilePhoto}>
+            <Pressable
+              style={style.recipeProfilePhoto}
+              onPress={() => {
+                navigation.navigate("Perfil", { nome: recipe.Autor });
+              }}
+            >
               <ImageBackground
                 style={{ width: "100%", height: "100%" }}
                 source={{ uri: profileImageToRender[0] }}
               ></ImageBackground>
-            </View>
+            </Pressable>
             <Text
               style={[
                 style.commonTextColor,

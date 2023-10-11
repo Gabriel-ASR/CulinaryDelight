@@ -1,4 +1,3 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import NewRecipe from "../pages/NewRecipe";
 import LandingPage from "../pages/PaginaInicial";
 import { Image, View, Text } from "react-native";
@@ -8,6 +7,7 @@ import "../../assets/perfil.png";
 import MyProfile from "../pages/MyProfile";
 import AllRecipes from "../pages/AllRecipes";
 import MyRecipes from "../pages/MyRecipes";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const Tab = createBottomTabNavigator();
 

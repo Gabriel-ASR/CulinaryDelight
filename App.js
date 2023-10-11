@@ -1,23 +1,26 @@
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { allRecipes } from "./CulinaryDelightApp/services/dbRead";
-import LandingPage from "./CulinaryDelightApp/pages/PaginaInicial";
 import "./assets/logo-culinary-delight.png";
 import "./assets/menu-aberto.png";
-import LoginPage from "./CulinaryDelightApp/pages/Login";
 import RegisterPage from "./CulinaryDelightApp/pages/Registro";
-import NewRecipe from "./CulinaryDelightApp/pages/NewRecipe";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Home from "./CulinaryDelightApp/routes/Home";
 import CurrentRecipe from "./CulinaryDelightApp/pages/CurrentRecipe";
 import AddInformation from "./CulinaryDelightApp/pages/AddInformation";
+import LoginPage from "./CulinaryDelightApp/pages/Login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+import Profile from "./CulinaryDelightApp/pages/Profile";
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [logged, setLogged] = useState(false);
+
+  function update() {
+    setLogged(true);
+  }
   const [loaded] = useFonts({
     MontserratBlack: require("./assets/fonts/Montserrat-Black.ttf"),
     MontserratBlackItalic: require("./assets/fonts/Montserrat-BlackItalic.ttf"),
@@ -43,29 +46,19 @@ export default function App() {
     return null;
   }
 
-  if (AsyncStorage.getItem("Logged") == "true") {
-    return (
-      <NavigationContainer>
-        <Tab.Navigator initialRouteName="Página Inicial">
-          <Tab.Screen name="Página Inicial" component={LandingPage} />
-          <Tab.Screen name="Nova Receita" componet={NewRecipe} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    );
-  } else {
-    return (
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={{ headerShown: false }}
-        >
-          <Stack.Screen name="Receita Atual" component={CurrentRecipe} />
-          <Stack.Screen name="Página Inicial" component={Home} />
-          <Stack.Screen name="Login" component={LoginPage} />
-          <Stack.Screen name="Registro" component={RegisterPage} />
-          <Stack.Screen name="Adicionar Info" component={AddInformation} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Receita Atual" component={CurrentRecipe} />
+        <Stack.Screen name="Página Inicial" component={Home} />
+        <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="Registro" component={RegisterPage} />
+        <Stack.Screen name="Adicionar Info" component={AddInformation} />
+        <Stack.Screen name="Perfil" component={Profile} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
