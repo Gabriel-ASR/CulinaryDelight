@@ -52,7 +52,17 @@ export default function LoginPage() {
       >
         <View style={style.authDrawer}>
           <Text style={style.authAction}>Log-in</Text>
-          {errorMessage && <Text>{errorMessage}</Text>}
+          {errorMessage && (
+            <Text
+              style={{
+                fontFamily: "MontserratMedium",
+                color: "#ff3333",
+                marginLeft: 10,
+              }}
+            >
+              {errorMessage}
+            </Text>
+          )}
           <View style={style.textInputContainer}>
             <View>
               <Text

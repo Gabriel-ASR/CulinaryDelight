@@ -111,7 +111,15 @@ function RecipeCard({ filter }) {
                     deleteRecipeFromDatabase(recipe.id);
                   }}
                 >
-                  <Text>Excluir Receita</Text>
+                  <Text
+                    style={{
+                      fontFamily: "MontserratBlack",
+                      color: "#ff3333",
+                      marginLeft: 10,
+                    }}
+                  >
+                    Excluir Receita
+                  </Text>
                 </Pressable>
               </View>
             </View>

@@ -75,7 +75,6 @@ function AddInformation({ navigation, route }) {
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  keyboardType="numeric"
                 />
               )}
               name="Name"

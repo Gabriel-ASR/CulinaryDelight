@@ -41,7 +41,17 @@ export default function RegisterPage({ navigation }) {
       >
         <View style={style.authDrawer}>
           <Text style={style.authAction}>Registrar</Text>
-          {error && <Text>Já há um usuário cadastrado com este e-mail!</Text>}
+          {error && (
+            <Text
+              style={{
+                fontFamily: "MontserratMedium",
+                color: "#ff3333",
+                marginLeft: 10,
+              }}
+            >
+              Já há um usuário cadastrado com este e-mail!
+            </Text>
+          )}
           <View style={style.textInputContainer}>
             <View>
               <Text

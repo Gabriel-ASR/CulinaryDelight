@@ -15,15 +15,12 @@ function Profile({ route }) {
   async function retrieveData(name) {
     const data = await fetchProfileData(name);
     setInfoDisplay(data);
-    console.log(infoDisplay);
   }
 
   useEffect(() => {
     async function getData() {
       await retrieveData(nome);
-      console.log(infoDisplay);
       await filterUserImage();
-      console.log(profilePicture);
     }
     getData();
   }, []);
@@ -63,7 +60,6 @@ function Profile({ route }) {
 
       const onlyCurrentUserRecipes = filteredRecipes.map((item) => {
         if (item.Autor !== infoDisplay.username) {
-          console.log("Ué?", item.Autor, infoDisplay.username);
           return null;
         }
 
